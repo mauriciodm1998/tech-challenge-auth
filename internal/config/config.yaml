@@ -1,0 +1,6 @@
+server:
+  port: 3003
+integration:
+  customer: ":3002"
+token:
+  key: "dnVJWGFPSzRPcEpXQTl5U1gxVVRwSVdzaFhQcFA2bmVHS0dBNzI0RmF1WQ=="
