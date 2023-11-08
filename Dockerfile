@@ -11,9 +11,8 @@ FROM alpine as runner
 
 RUN mkdir app
 COPY --from=builder go/app/dist/tech-challenge-auth app/
+COPY ./internal/config/config.yaml /app
 RUN chmod +x app
-
-EXPOSE 3002
 EXPOSE 3003
 WORKDIR /app
 
