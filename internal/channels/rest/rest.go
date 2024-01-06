@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"tech-challenge-auth/internal/config"
@@ -25,9 +26,9 @@ type login struct {
 	service service.LoginService
 }
 
-func New() Login {
+func New(svc service.LoginService) Login {
 	return &login{
-		service: service.NewLoginService(),
+		service: svc,
 	}
 }
 
@@ -53,14 +54,14 @@ func (u *login) Login(c echo.Context) error {
 	var customerLogin LoginRequest
 
 	if err := c.Bind(&customerLogin); err != nil {
-		return c.JSON(http.StatusBadRequest, Response{
+		return echo.NewHTTPError(http.StatusBadRequest, Response{
 			Message: fmt.Errorf("invalid data").Error(),
 		})
 	}
 
 	token, err := u.service.Login(c.Request().Context(), customerLogin.toCanonical())
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, Response{err.Error()})
+		return echo.NewHTTPError(http.StatusInternalServerError, Response{err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, TokenResponse{
@@ -69,10 +70,7 @@ func (u *login) Login(c echo.Context) error {
 }
 
 func (u *login) Bypass(c echo.Context) error {
-	token, err := u.service.Bypass()
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, Response{err.Error()})
-	}
+	token, _ := u.service.Bypass(context.Background())
 	return c.JSON(http.StatusOK, TokenResponse{
 		Token: token,
 	})

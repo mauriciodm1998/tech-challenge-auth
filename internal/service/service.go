@@ -13,7 +13,7 @@ import (
 
 type LoginService interface {
 	Login(context.Context, canonical.Login) (string, error)
-	Bypass() (string, error)
+	Bypass(context.Context) (string, error)
 }
 
 type loginService struct {
@@ -40,23 +40,11 @@ func (u *loginService) Login(ctx context.Context, customer canonical.Login) (str
 		return "", err
 	}
 
-	token, err := token.GenerateToken(customerBase.Document)
-	if err != nil {
-		err = fmt.Errorf("error generting token: %w", err)
-		logrus.WithField("customerId", customerBase.Document).WithError(err).Warn()
-		return "", err
-	}
+	token, _ := token.GenerateToken(customerBase.Document)
 
 	return token, nil
 }
 
-func (u *loginService) Bypass() (string, error) {
-	token, err := token.GenerateToken("")
-	if err != nil {
-		err = fmt.Errorf("error generting token: %w", err)
-		logrus.WithError(err).Warn()
-		return "", err
-	}
-
-	return token, nil
+func (u *loginService) Bypass(_ context.Context) (string, error) {
+	return token.GenerateToken("")
 }
